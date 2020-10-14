@@ -1,0 +1,41 @@
+int main()
+{
+	string filename = "F:\\tmp\\3.jpg";
+	Mat src = imread(filename);
+	resize(src, src, cv::Size(src.cols / 7, src.rows / 7));
+	imshow("src", src);
+	Mat matHsv;
+	cvtColor(src, matHsv, COLOR_BGR2HSV);
+	imshow("matHsv", matHsv);
+	int nRows = src.rows;               // 行数
+	int nCols = src.cols;   	// 列数,考虑到图像矩阵的存储形式,每一行的实际元素数应为列数乘以通道数
+
+
+	// 遍历图像矩阵
+	for (int i = 0; i < nRows; ++i) {
+		uchar* p_hsv = matHsv.ptr<uchar>(i);
+		uchar* p_rgb = src.ptr<uchar>(i);
+		for (int j = 0; j < nCols; ++j) {
+			uchar* pixel_hsv = p_hsv + 3 * j;
+			uchar* pixel_rgb = p_rgb + 3 * j;
+			if ((pixel_hsv[0] >= 0 && pixel_hsv[0] <= 180) && (pixel_hsv[1] >= 0 && pixel_hsv[1] <= 255) && (pixel_hsv[2] >= 0 && pixel_hsv[2] <= 46))
+			{
+				pixel_rgb[0] = 0;
+				pixel_rgb[1] = 0;
+				pixel_rgb[2] = 0;
+			}
+			else
+			{
+				pixel_rgb[0] = 255;
+				pixel_rgb[1] = 255;
+				pixel_rgb[2] = 255;
+			}
+		}
+	}
+	imshow("black_dect", src);
+	suspiciousconf conf(3,3 , 50, 200, 0, 60);
+	vector<vector<Point>> s_contour = get_suspicious_area(src, conf);
+
+	cvWaitKey(0);
+	return 0;
+}
